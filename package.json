@@ -24,5 +24,8 @@
   "homepage": "https://github.com/ampme/parse-server-amqp#readme",
   "devDependencies": {
     "parse-server": "parseplatform/parse-server#live-query-pubsub-adapter"
+  },
+  "dependencies": {
+    "amqplib": "0.4.2"
   }
 }
