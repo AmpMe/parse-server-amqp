@@ -21,5 +21,8 @@
   "bugs": {
     "url": "https://github.com/ampme/parse-server-amqp/issues"
   },
-  "homepage": "https://github.com/ampme/parse-server-amqp#readme"
+  "homepage": "https://github.com/ampme/parse-server-amqp#readme",
+  "devDependencies": {
+    "parse-server": "parseplatform/parse-server#live-query-pubsub-adapter"
+  }
 }
