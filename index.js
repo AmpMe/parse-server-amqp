@@ -20,7 +20,7 @@ class Publisher {
 
   publish(exchange: string, message: string): void {
     this.ch.assertExchange(exchange, 'fanout', { durable: false });
-    this.ch.publish(exchange, '', new Buffer(message));
+    this.ch.publish(exchange, '', Buffer.from(message));
   }
 }
 
