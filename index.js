@@ -4,9 +4,10 @@ const events = require('events');
 class Publisher {
   ch: any;
 
-  constructor(amqpHost: string) {
+  constructor(opts: any) {
     super();
-    amqp.connect(`amqp://${amqpHost}`, function (err, conn) {
+    if (!opts.amqpHost) throw "no amqpHost set";
+    amqp.connect(`amqp://${opts.amqpHost}`, function (err, conn) {
       if (err) {
         throw new Error("cannot connect to AMQP server: " + err);
       }
@@ -30,11 +31,12 @@ class Subscriber extends events.EventEmitter {
   emitter: any;
   subscriptions: any;
 
-  constructor(amqpHost: string) {
+  constructor(opts: any) {
     super();
+    if (!opts.amqpHost) throw "no amqpHost set";
     this.emitter = new events.EventEmitter();
     this.subscriptions = new Map();
-    amqp.connect(`amqp://${amqpHost}`, function (err, conn) {
+    amqp.connect(`amqp://${opts.amqpHost}`, function (err, conn) {
       if (err) {
         throw new Error("cannot connect to AMQP server: " + err);
       }
@@ -81,12 +83,8 @@ class Subscriber extends events.EventEmitter {
 }
 
 let AMQPPubSub = {
-  createPublisher: function (opts): any {
-    return new Publisher(opts.amqpHost)
-  },
-  createSubscriber: function (opts) {
-    return new Subscriber(opts.amqpHost)
-  }
+  createPublisher: (opts) => new Publisher(opts),
+  createSubscriber: (opts) => new Subscriber(opts)
 }
 
 export {
