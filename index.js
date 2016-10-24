@@ -1,31 +1,27 @@
-const amqp = require('amqplib/callback_api');
+const amqp = require('amqplib');
 const events = require('events');
+
+var open = (host) => amqp.connect(`amqp://${host}`);
 
 class Publisher {
   ch: any;
 
   constructor(opts: any) {
-    super();
     if (!opts.amqpHost) throw "no amqpHost set";
-    amqp.connect(`amqp://${opts.amqpHost}`, function (err, conn) {
-      if (err) {
-        throw new Error("cannot connect to AMQP server: " + err);
-      }
-
-      conn.createChannel(function (err, ch) {
-        this.ch = ch;
-      })
-    })
+    open(opts.amqpHost)
+      .then(conn => conn.createChannel())
+      .then(ch => this.ch = ch)
+      .catch(console.warn);
   }
 
   publish(exchange: string, message: string): void {
-    this.ch.assertExchange(exchange, 'fanout', { durable: false });
-    this.ch.publish(exchange, '', Buffer.from(message));
+    this.ch.assertExchange(exchange, 'fanout', {durable: false})
+      .then(ok => this.ch.publish(exchange, '', Buffer.from(message)))
+      .catch(console.warn);
   }
 }
 
 class Subscriber extends events.EventEmitter {
-  connection: any;
   ch: any;
   q: any;
   emitter: any;
@@ -36,39 +32,25 @@ class Subscriber extends events.EventEmitter {
     if (!opts.amqpHost) throw "no amqpHost set";
     this.emitter = new events.EventEmitter();
     this.subscriptions = new Map();
-    amqp.connect(`amqp://${opts.amqpHost}`, function (err, conn) {
-      if (err) {
-        throw new Error("cannot connect to AMQP server: " + err);
-      }
-
-      this.connection = conn;
-    })
+    open(opts.amqpHost)
+      .then(conn => conn.createChannel())
+      .then(ch => this.ch = ch)
+      .catch(console.warn);
   }
 
   subscribe(exchange: string): void {
-    this.connection.createChannel(function (err, ch) {
-      if (err) {
-        throw new Error("cannot create AMQP channel: " + err);
-      }
-
-      this.ch = ch;
-      ch.assertExchange(exchange, 'fanout', { durable: false });
-      ch.assertQueue('', { exclusive: true }, function (err, q) {
-        if (err) {
-          throw new Error("failed to assert queue: " + err)
-        }
-
-        this.q = q;
-
+    this.ch.assertExchange(exchange, 'fanout', {durable: false})
+      .then(ok => this.ch.assertQueue('', {exclusive: true}))
+      .then(q => {
         let handler = (message) => {
           this.emit('message', exchange, message.content.toString());
         }
 
         this.subscriptions.set(exchange, handler);
-        ch.bindQueue(q.queue, exchange, '');
-        ch.consume(q.queue, handler, { noAck: true })
-      })
-    })
+        this.ch.bindQueue(q.queue, exchange, '');
+        this.ch.consume(q.queue, handler, { noAck: true });
+        this.q = q;
+      });
   }
 
   unsubscribe(exchange: string): void {
