@@ -30,7 +30,7 @@ describe('parse-server-amqp', function () {
         done();
       });
       subscriber.subscribe(testExchange)
-        .then(() => pub.publish(testExchange, testMessage))
+        .then(() => pub.publish(testExchange, testMessage));
     });
   });
 
