@@ -1,10 +1,10 @@
 {
   "name": "parse-server-amqp",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "AMQP Adapter for parse-server pub/sub",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "test": "mocha -R nyan",
+    "test": "mocha -R spec test/**/*",
     "cover": "node_modules/.bin/istanbul cover node_modules/.bin/_mocha -- -- -u exports -R spec test/**/*",
     "build": "babel src -d lib"
   },
@@ -19,7 +19,10 @@
     "scale"
   ],
   "author": "Florent Vilmart",
-  "license": "UNLICENSED",
+  "contributors": [
+    "Kirill Kravinsky <woyorus@gmail.com>"
+  ],
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/ampme/parse-server-amqp/issues"
   },
