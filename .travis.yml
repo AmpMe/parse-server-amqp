@@ -1,4 +1,4 @@
-sudo: false
+sudo: required
 language: node_js
 cache:
   directories:
@@ -18,5 +18,7 @@ before_script:
 script:
   - npm test
   - npm run cover
+services:
+  - rabbitmq
 after_success:
   - bash <(curl -s https://codecov.io/bash)
