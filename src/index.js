@@ -31,7 +31,6 @@ class Publisher {
       .then(ch => {
         ch.assertExchange(exchange, 'fanout', {durable: false})
         ch.publish(exchange, '', Buffer.from(message))
-        console.log('sent.');
       })
       .catch(console.warn);
   }
