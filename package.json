@@ -1,10 +1,11 @@
 {
   "name": "parse-server-amqp",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "AMQP Adapter for parse-server pub/sub",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha -R spec test/**/*",
+    "cover": "node_modules/.bin/istanbul cover node_modules/.bin/_mocha -- -- -u exports -R spec test/**/*"
   },
   "repository": {
     "type": "git",
@@ -17,12 +18,27 @@
     "scale"
   ],
   "author": "Florent Vilmart",
-  "license": "UNLICENSED",
+  "contributors": [
+    "Kirill Kravinsky <woyorus@gmail.com>"
+  ],
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/ampme/parse-server-amqp/issues"
   },
   "homepage": "https://github.com/ampme/parse-server-amqp#readme",
   "devDependencies": {
-    "parse-server": "parseplatform/parse-server#live-query-pubsub-adapter"
+    "chai": "3.5.0",
+    "eslint": "3.8.1",
+    "eslint-config-standard": "6.2.0",
+    "eslint-plugin-promise": "3.3.0",
+    "eslint-plugin-standard": "2.0.1",
+    "istanbul": "0.4.5",
+    "mocha": "3.1.2"
+  },
+  "dependencies": {
+    "amqplib": "0.4.2"
+  },
+  "engines": {
+    "node": ">=6.0"
   }
 }
