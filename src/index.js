@@ -10,7 +10,7 @@ function makeConnectionPromise(amqpHost) {
     }
     this._connectionPromise = open(amqpHost);
     return this._connectionPromise;
-  }
+  };
 }
 
 class Publisher {
@@ -30,7 +30,7 @@ class Publisher {
       })
       .then(ok => {
         this.ch.publish(exchange, '', Buffer.from(message));
-      })
+      });
   }
 }
 
@@ -57,7 +57,7 @@ class Subscriber extends events.EventEmitter {
 
         let handler = (message) => {
           this.emit('message', exchange, message.content.toString());
-        }
+        };
 
         this.subscriptions.set(exchange, handler);
         this.ch.bindQueue(q.queue, exchange, '');
@@ -83,6 +83,6 @@ class Subscriber extends events.EventEmitter {
 let AMQPPubSub = {
   createPublisher: (opts) => new Publisher(opts),
   createSubscriber: (opts) => new Subscriber(opts)
-}
+};
 
 module.exports = AMQPPubSub;

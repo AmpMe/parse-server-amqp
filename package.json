@@ -28,6 +28,10 @@
   "homepage": "https://github.com/ampme/parse-server-amqp#readme",
   "devDependencies": {
     "chai": "3.5.0",
+    "eslint": "3.8.1",
+    "eslint-config-standard": "6.2.0",
+    "eslint-plugin-promise": "3.3.0",
+    "eslint-plugin-standard": "2.0.1",
     "istanbul": "0.4.5",
     "mocha": "3.1.2",
     "parse-server": "parseplatform/parse-server#live-query-pubsub-adapter"
