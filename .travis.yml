@@ -1,0 +1,24 @@
+sudo: required
+language: node_js
+cache:
+  directories:
+    - node_modules
+branches:
+    only:
+    - master
+notifications:
+  email: false
+node_js:
+  - "6"
+  - "6.1"
+before_install:
+  - npm install -g npm@^3.10.0
+before_script:
+  - npm prune
+script:
+  - npm test
+  - npm run cover
+services:
+  - rabbitmq
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
