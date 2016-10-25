@@ -30,7 +30,7 @@ class Publisher {
       .then(conn => conn.createChannel())
       .then(ch => {
         return ch.assertExchange(exchange, 'fanout', {durable: false})
-          .then(ok => this.ch.publish(exchange, '', Buffer.from(message)))
+          .then(ok => ch.publish(exchange, '', Buffer.from(message)))
       })
       .catch(console.warn);
   }
