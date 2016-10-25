@@ -21,7 +21,7 @@ class Publisher {
   constructor(opts: any) {
     opts = opts || {};
     let amqpHost = opts.amqpHost || 'localhost';
-    this.connectionPromise = makeConnectionPromise(amqpHost);
+    this.connectionPromise = makeConnectionPromise(amqpHost).bind(this);
     return this;
   }
 
@@ -29,8 +29,9 @@ class Publisher {
     this.connectionPromise()
       .then(conn => conn.createChannel())
       .then(ch => {
-        return ch.assertExchange(exchange, 'fanout', {durable: false})
-          .then(ok => ch.publish(exchange, '', Buffer.from(message)))
+        ch.assertExchange(exchange, 'fanout', {durable: false})
+        ch.publish(exchange, '', Buffer.from(message))
+        console.log('sent.');
       })
       .catch(console.warn);
   }
@@ -48,7 +49,7 @@ class Subscriber extends events.EventEmitter {
     super();
     opts = opts || {};
     let amqpHost = opts.amqpHost || 'localhost';
-    this.connectionPromise = makeConnectionPromise(amqpHost);
+    this.connectionPromise = makeConnectionPromise(amqpHost).bind(this);
     this.emitter = new events.EventEmitter();
     this.subscriptions = new Map();
   }
@@ -59,7 +60,7 @@ class Subscriber extends events.EventEmitter {
       .then(ch => {
         this.ch = ch;
         return ch.assertExchange(exchange, 'fanout', {durable: false})
-          .then(ok => this.ch.assertQueue('', {exclusive: true}))
+          .then(ok => ch.assertQueue('', {exclusive: true}))
           .then(q => {
             this.q = q;
 
@@ -68,8 +69,8 @@ class Subscriber extends events.EventEmitter {
             }
 
             this.subscriptions.set(exchange, handler);
-            this.ch.bindQueue(q.queue, exchange, '');
-            this.ch.consume(q.queue, handler, {noAck: true});
+            ch.bindQueue(q.queue, exchange, '');
+            ch.consume(q.queue, handler, {noAck: true});
           })
       })
       .catch(console.warn);
