@@ -33,8 +33,7 @@
     "eslint-plugin-promise": "3.3.0",
     "eslint-plugin-standard": "2.0.1",
     "istanbul": "0.4.5",
-    "mocha": "3.1.2",
-    "parse-server": "parseplatform/parse-server#live-query-pubsub-adapter"
+    "mocha": "3.1.2"
   },
   "dependencies": {
     "amqplib": "0.4.2"
