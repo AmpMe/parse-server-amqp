@@ -4,7 +4,7 @@
   "description": "AMQP Adapter for parse-server pub/sub",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha --compilers js:babel-register",
     "build": "babel src -d lib"
   },
   "repository": {
@@ -25,7 +25,6 @@
   "homepage": "https://github.com/ampme/parse-server-amqp#readme",
   "devDependencies": {
     "babel-cli": "6.18.0",
-    "babel-plugin-transform-flow-strip-types": "6.18.0",
     "babel-preset-es2015": "6.18.0",
     "chai": "3.5.0",
     "mocha": "3.1.2",

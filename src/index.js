@@ -3,7 +3,7 @@ const events = require('events');
 
 var open = (host) => amqp.connect(`amqp://${host}`);
 
-function makeConnectionPromise(amqpHost: string) {
+function makeConnectionPromise(amqpHost) {
   return function () {
     if (this._connectionPromise) {
       return this._connectionPromise;
@@ -14,37 +14,28 @@ function makeConnectionPromise(amqpHost: string) {
 }
 
 class Publisher {
-  ch: any;
-  connectionPromise: () => any;
-  _connectionPromise: any;
-
-  constructor(opts: any) {
+  constructor(opts) {
     opts = opts || {};
     let amqpHost = opts.amqpHost || 'localhost';
     this.connectionPromise = makeConnectionPromise(amqpHost).bind(this);
     return this;
   }
 
-  publish(exchange: string, message: string): void {
-    this.connectionPromise()
+  publish(exchange, message) {
+    return this.connectionPromise()
       .then(conn => conn.createChannel())
       .then(ch => {
-        ch.assertExchange(exchange, 'fanout', {durable: false})
-        ch.publish(exchange, '', Buffer.from(message))
+        this.ch = ch;
+        return ch.assertExchange(exchange, 'fanout', {durable: false})
       })
-      .catch(console.warn);
+      .then(ok => {
+        this.ch.publish(exchange, '', Buffer.from(message));
+      })
   }
 }
 
 class Subscriber extends events.EventEmitter {
-  ch: any;
-  q: any;
-  emitter: any;
-  subscriptions: any;
-  connectionPromise: () => any;
-  _connectionPromise: any;
-
-  constructor(opts: any) {
+  constructor(opts) {
     super();
     opts = opts || {};
     let amqpHost = opts.amqpHost || 'localhost';
@@ -53,29 +44,32 @@ class Subscriber extends events.EventEmitter {
     this.subscriptions = new Map();
   }
 
-  subscribe(exchange: string): void {
-    this.connectionPromise()
+  subscribe(exchange) {
+    return this.connectionPromise()
       .then(conn => conn.createChannel())
       .then(ch => {
         this.ch = ch;
         return ch.assertExchange(exchange, 'fanout', {durable: false})
-          .then(ok => ch.assertQueue('', {exclusive: true}))
-          .then(q => {
-            this.q = q;
-
-            let handler = (message) => {
-              this.emit('message', exchange, message.content.toString());
-            }
-
-            this.subscriptions.set(exchange, handler);
-            ch.bindQueue(q.queue, exchange, '');
-            ch.consume(q.queue, handler, {noAck: true});
-          })
       })
-      .catch(console.warn);
+      .then(ok => this.ch.assertQueue('', {exclusive: true}))
+      .then(q => {
+        this.q = q;
+
+        let handler = (message) => {
+          this.emit('message', exchange, message.content.toString());
+        }
+
+        this.subscriptions.set(exchange, handler);
+        this.ch.bindQueue(q.queue, exchange, '');
+        this.ch.consume(q.queue, handler, {noAck: true});
+      })
+      .catch((err) => {
+        console.warn(err);
+        throw err;
+      });
   }
 
-  unsubscribe(exchange: string): void {
+  unsubscribe(exchange) {
     if (!this.subscriptions.has(exchange)) {
       return;
     }
@@ -91,4 +85,4 @@ let AMQPPubSub = {
   createSubscriber: (opts) => new Subscriber(opts)
 }
 
-export default AMQPPubSub
+module.exports = AMQPPubSub;
